@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import xmlParser, { countsParser, statisticsParser } from '../lib/xml-parser'
 import { downloadTSV } from '../lib/download'
 
-class App extends Component {
+class WorkspaceParser extends Component {
   constructor() {
     super()
     this.state = { files: [] }
@@ -101,4 +101,4 @@ class App extends Component {
   }
 }
 
-export default App
+export default WorkspaceParser
