@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import {MenuItem, InputGroup, FormControl, DropdownButton, Form, ButtonGroup, Button, Dropdown, Glyphicon,
-  FormGroup, ControlLabel } from 'react-bootstrap';
+import {MenuItem, InputGroup, FormControl, DropdownButton, Form, ButtonGroup, Button, FormGroup, ControlLabel } from 'react-bootstrap';
 import Datetime from 'react-datetime';
 import moment from 'moment';
 import {
@@ -10,7 +9,6 @@ import {
   AccordionItemBody,
 } from 'react-accessible-accordion';
 
-import { models } from '../../lib/sample_data';
 import { createGraph, constructDSLQuery, queryToDSL } from '../../lib/table-query-builder';
 
 
@@ -38,7 +36,7 @@ const getModels = (token) => {
   })
   .then(resp => resp.json())
   .then(result => result.models)
-}
+};
 
 const getResults = (token, queryArray, colNames) => {
   return fetch('http://localhost:5050/query', {
@@ -56,17 +54,21 @@ const getResults = (token, queryArray, colNames) => {
   })
     .then(resp => resp.json())
     .then(respToObjects(colNames))
-}
+};
 
 const respToObjects = colNames => resp => {
-  return resp.answer.map(([id, row]) => {
-    return colNames
-      .reduce((acc, name, ind) => ({
-        ...acc,
-        [name]: row[ind]
-      }),{})
-  })
-}
+  if (resp.answer) {
+    return resp.answer.map(([id, row]) => {
+      return colNames
+        .reduce((acc, name, ind) => ({
+          ...acc,
+          [name]: row[ind]
+        }),{})
+    })
+  }
+
+  return [];
+};
 
 class MagmaQueryContainer extends Component {
   constructor() {
@@ -103,7 +105,7 @@ class MagmaQueryContainer extends Component {
 
   updateModels(models) {
     this.setState(currState => {
-      const graphModels = createGraph(models, 'project')
+      const graphModels = createGraph(models, 'project', 'experiment');
       return {
         ...currState,
         models: graphModels,
@@ -211,8 +213,6 @@ class MagmaQueryContainer extends Component {
   }
 
   render() {
-
-    console.log(this.state.results)
     return (
       <div>
         <HeaderContainer updateModels={this.updateModels} updateApiKey={this.updateApiKey} apiKey={this.state.apiKey}/>
@@ -291,21 +291,21 @@ const Table = ({ headers, data }) => (
     defaultPageSize={10}
     columns={headers}
   />
-)
+);
 
 class Apply extends Component {
   constructor(props) {
-    super(props)
+    super(props);
 
     this.state = {
       query: this.queryArray(props.columns, props.filters, props.models)
-    }
+    };
 
     this.handleApply = this.handleApply.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    const newQueryArray = this.queryArray(nextProps.columns, nextProps.filters, nextProps.models)
+    const newQueryArray = this.queryArray(nextProps.columns, nextProps.filters, nextProps.models);
     if (this.state.query.array.toString() !== newQueryArray.array.toString()) {
       this.setState({ query: newQueryArray })
     }
@@ -313,7 +313,7 @@ class Apply extends Component {
 
   queryArray(columns, filters, models) {
     const query = columns.reduce((acc, col) => {
-      let table = acc.find(table => table.name && table.name === col.table)
+      let table = acc.find(table => table.name && table.name === col.table);
 
       if (table) {
         table.columns.push({ name: col.column, filters: [] });
@@ -326,7 +326,7 @@ class Apply extends Component {
               filters: []
             }
           ]
-        }
+        };
         acc.push(table)
       }
 
@@ -334,10 +334,10 @@ class Apply extends Component {
     }, []);
 
     Object.values(filters).forEach(filter => {
-      let table = query.find(t => t.name === filter.column.tableName)
+      let table = query.find(t => t.name === filter.column.tableName);
 
       if (table) {
-        let column = table.columns.find(col => col.name === filter.column.column)
+        let column = table.columns.find(col => col.name === filter.column.column);
 
         if (column) {
           column.filters.push({
@@ -349,9 +349,8 @@ class Apply extends Component {
     });
 
     if (query.length > 0) {
-      const dsl = constructDSLQuery(query, models)
-      console.log(dsl, "here is the query")
-      return { array: queryToDSL(dsl), columns: dsl.columns.map(c => c.colName) }
+      const dsl = constructDSLQuery(query, models);
+      return { array: queryToDSL(dsl), columns: dsl.columns.map(c => c.colName) };
     }
 
     return { array: [], columns: []};
@@ -367,11 +366,11 @@ class Apply extends Component {
       <div>
         <ButtonGroup>
           <Button onClick={this.handleApply}>
-            <span className="glyphicon glyphicon-th-list" aria-hidden="true" ></span>
+            <span className="glyphicon glyphicon-th-list" aria-hidden="true" />
             Apply
           </Button>
           <Button >
-            <span className="glyphicon glyphicon-download-alt" aria-hidden="true"></span>
+            <span className="glyphicon glyphicon-download-alt" aria-hidden="true" />
             Download
           </Button>
         </ButtonGroup>
@@ -542,7 +541,7 @@ class FiltersContainer extends Component {
       <div>
         <Button onClick={this.toggleFilterList}>
           <h5>
-            <span className="glyphicon glyphicon-filter" aria-hidden="true"></span>
+            <span className="glyphicon glyphicon-filter" aria-hidden="true" />
             Filters
           </h5>
         </Button>
@@ -550,11 +549,11 @@ class FiltersContainer extends Component {
           <Form componentClass="fieldset" inline>
             <ButtonGroup>
               <Button onClick={this.addFilter}>
-                <span className="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                <span className="glyphicon glyphicon-plus" aria-hidden="true" />
                 Add Filter
               </Button>
               <Button onClick={this.props.clearFilters}>
-                <span className="glyphicon glyphicon-erase" aria-hidden="true"></span>
+                <span className="glyphicon glyphicon-erase" aria-hidden="true" />
                 Clear All
               </Button>
             </ButtonGroup>
@@ -628,7 +627,7 @@ const Filter = ({
       </div>
       <ButtonGroup>
         <Button onClick={removeFilter}>
-          <span className="glyphicon glyphicon-remove" aria-hidden="true"></span>
+          <span className="glyphicon glyphicon-remove" aria-hidden="true" />
         </Button>
         <DropDown
           options={columnOptions}
