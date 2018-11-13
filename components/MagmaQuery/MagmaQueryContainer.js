@@ -10,61 +10,78 @@ import {
 } from 'react-accessible-accordion';
 
 import { createGraph, constructDSLQuery, queryToDSL } from '../../lib/table-query-builder';
+import { downloadTSV } from '../../lib/download';
+import { responseToRowObjs } from '../../sample-data/rowObjs';
 
 
 import ReactTable from 'react-table';
-import "react-table/react-table.css";
+import 'react-table/react-table.css';
 import FoldableTableHOC from './foldableTable'
 
 const FoldableTable = FoldableTableHOC(ReactTable);
 
 const getModels = (token) => {
   return fetch('http://localhost:5050/retrieve', {
-    method: "POST",
-    mode: "cors",
+    method: 'POST',
+    mode: 'cors',
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Etna ${token}`,
-      "Accept": "application/json, text/*"
+      'Content-Type': 'application/json',
+      'Authorization': `Etna ${token}`,
+      'Accept': 'application/json, text/*'
     },
     body: JSON.stringify({
-      "project_name": "ipi",
-      "model_name": "all",
-      "record_names": [],
-      "attribute_names": "all"
+      'project_name': 'ipi',
+      'model_name': 'all',
+      'record_names': [],
+      'attribute_names': 'all'
     }),
   })
   .then(resp => resp.json())
   .then(result => result.models)
 };
 
-const getResults = (token, queryArray, colNames) => {
+const getResults = (token, queryArray, colNames, columns) => {
   return fetch('http://localhost:5050/query', {
-    method: "POST",
-    mode: "cors",
+    method: 'POST',
+    mode: 'cors',
     headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Etna ${token}`,
-      "Accept": "application/json, text/*"
+      'Content-Type': 'application/json',
+      'Authorization': `Etna ${token}`,
+      'Accept': 'application/json, text/*'
     },
     body: JSON.stringify({
-      project_name: "ipi",
+      project_name: 'ipi',
       query: queryArray
     })
   })
     .then(resp => resp.json())
-    .then(respToObjects(colNames))
+    .then((json) => {
+      const colNamesToTableNameMap = columns.reduce((acc, col) => {
+        const columnId = `${col.table}_${col.column}`
+        if (!acc[columnId]) {
+          acc[columnId] = col.table
+        }
+
+        return acc
+      }, {})
+
+      const tableColumnsGroup = colNames.reduce((acc, curr) => {
+        if (!acc[colNamesToTableNameMap[curr]]) {
+          acc[colNamesToTableNameMap[curr]] = [curr]
+          return acc
+        }
+
+        acc[colNamesToTableNameMap[curr]].push(curr)
+        return acc
+      }, {})
+
+      return respToObjects(colNames, colNamesToTableNameMap)(json)
+    })
 };
 
-const respToObjects = colNames => resp => {
+const respToObjects = (colNames, colNamesToTableNameMap) => resp => {
   if (resp.answer) {
-    return resp.answer.map(([id, row]) => {
-      return colNames
-        .reduce((acc, name, ind) => ({
-          ...acc,
-          [name]: row[ind]
-        }),{})
-    })
+    return responseToRowObjs(colNamesToTableNameMap, resp.answer)
   }
 
   return [];
@@ -213,6 +230,7 @@ class MagmaQueryContainer extends Component {
   }
 
   render() {
+    console.log(this.state.results, 'results')
     return (
       <div>
         <HeaderContainer updateModels={this.updateModels} updateApiKey={this.updateApiKey} apiKey={this.state.apiKey}/>
@@ -223,6 +241,7 @@ class MagmaQueryContainer extends Component {
           models={this.state.models}
           apiKey={this.state.apiKey}
           updateResults={this.updateResults}
+          data={this.state.results}
         />
         <FiltersContainer
           models={this.state.filterableModels}
@@ -287,7 +306,7 @@ class TableContainer extends Component {
 const Table = ({ headers, data }) => (
   <FoldableTable
     data={data}
-    className="-striped -highlight"
+    className='-striped -highlight'
     defaultPageSize={10}
     columns={headers}
   />
@@ -357,7 +376,7 @@ class Apply extends Component {
   }
 
   handleApply() {
-    getResults(this.props.apiKey, this.state.query.array, this.state.query.columns)
+    getResults(this.props.apiKey, this.state.query.array, this.state.query.columns, this.props.columns)
       .then(this.props.updateResults)
   }
 
@@ -366,11 +385,11 @@ class Apply extends Component {
       <div>
         <ButtonGroup>
           <Button onClick={this.handleApply}>
-            <span className="glyphicon glyphicon-th-list" aria-hidden="true" />
+            <span className='glyphicon glyphicon-th-list' aria-hidden='true' />
             Apply
           </Button>
-          <Button >
-            <span className="glyphicon glyphicon-download-alt" aria-hidden="true" />
+          <Button onClick={()=> downloadTSV(this.props.data, 'table_download')}>
+            <span className='glyphicon glyphicon-download-alt' aria-hidden='true' />
             Download
           </Button>
         </ButtonGroup>
@@ -379,13 +398,17 @@ class Apply extends Component {
   }
 }
 
+class DownloadSelector extends Component {
+
+}
+
 const DatePicker = (onChange, value) => (
   <Datetime onChange={e => onChange(e.format())} value={moment(value)} />
 );
 
 const StringInput = (onChange, value, placeHolder) => (
   <FormControl
-    type="text"
+    type='text'
     value={value}
     placeholder={placeHolder}
     onChange={e => onChange(e.target.value)}
@@ -394,7 +417,7 @@ const StringInput = (onChange, value, placeHolder) => (
 
 
 const IncludesInput = (onChange, value) => StringInput(onChange, value, 'comma separated - item1, item2, item3');
-const MatchInput = (onChange, value) => StringInput(onChange, value, "regular expression");
+const MatchInput = (onChange, value) => StringInput(onChange, value, 'regular expression');
 const IntInput = (onChange, value) => StringInput(onChange, value, 'example: 1234');
 const FloatInput =  (onChange, value) => StringInput(onChange, value, 'example: 12.34');
 
@@ -541,19 +564,19 @@ class FiltersContainer extends Component {
       <div>
         <Button onClick={this.toggleFilterList}>
           <h5>
-            <span className="glyphicon glyphicon-filter" aria-hidden="true" />
+            <span className='glyphicon glyphicon-filter' aria-hidden='true' />
             Filters
           </h5>
         </Button>
         {this.state.collapsed ||
-          <Form componentClass="fieldset" inline>
+          <Form componentClass='fieldset' inline>
             <ButtonGroup>
               <Button onClick={this.addFilter}>
-                <span className="glyphicon glyphicon-plus" aria-hidden="true" />
+                <span className='glyphicon glyphicon-plus' aria-hidden='true' />
                 Add Filter
               </Button>
               <Button onClick={this.props.clearFilters}>
-                <span className="glyphicon glyphicon-erase" aria-hidden="true" />
+                <span className='glyphicon glyphicon-erase' aria-hidden='true' />
                 Clear All
               </Button>
             </ButtonGroup>
@@ -621,13 +644,13 @@ const Filter = ({
 
   return (
     <div>
-      <FormGroup controlId="formValidationWarning3" validationState={validationState}>
+      <FormGroup controlId='formValidationWarning3' validationState={validationState}>
       <div>
         <ControlLabel>{validationMsg}</ControlLabel>
       </div>
       <ButtonGroup>
         <Button onClick={removeFilter}>
-          <span className="glyphicon glyphicon-remove" aria-hidden="true" />
+          <span className='glyphicon glyphicon-remove' aria-hidden='true' />
         </Button>
         <DropDown
           options={columnOptions}
@@ -738,7 +761,7 @@ const ColumnPicker = (models) => {
   const tables = models.map(({ tableName, displayTableName, columns, selectAllHandler, deselectHandler }) => {
     const cols = columns.map(({ displayName, name, handleChange, checked }) => (
       <li key={name}>
-        <input type="checkbox" onChange={handleChange} checked={checked}/>
+        <input type='checkbox' onChange={handleChange} checked={checked}/>
         {displayName}
       </li>
     ));
@@ -746,13 +769,13 @@ const ColumnPicker = (models) => {
     return (
       <AccordionItem key={tableName}>
         <AccordionItemTitle>
-          <h4 className="u-position-relative">
+          <h4 className='u-position-relative'>
             <span>{displayTableName}</span>
             <a onClick={selectAllHandler}>Select All</a>
             <a onClick={deselectHandler}>Deselect</a>
             <div
-              className="accordion__arrow"
-              role="presentation"
+              className='accordion__arrow'
+              role='presentation'
             />
           </h4>
         </AccordionItemTitle>

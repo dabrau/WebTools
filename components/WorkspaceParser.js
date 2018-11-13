@@ -82,7 +82,7 @@ class WorkspaceParser extends Component {
           <label className='btn btn-info btn-sm'>
             add .wsp files
             <input
-              type="file"
+              type='file'
               style={{ display: 'none' }}
               multiple
               name='files'
