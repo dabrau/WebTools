@@ -57,23 +57,13 @@ const getResults = (token, queryArray, colNames, columns) => {
     .then(resp => resp.json())
     .then((json) => {
       const colNamesToTableNameMap = columns.reduce((acc, col) => {
-        const columnId = `${col.table}_${col.column}`
+        const columnId = `${col.table}_${col.column}`;
         if (!acc[columnId]) {
           acc[columnId] = col.table
         }
 
         return acc
-      }, {})
-
-      const tableColumnsGroup = colNames.reduce((acc, curr) => {
-        if (!acc[colNamesToTableNameMap[curr]]) {
-          acc[colNamesToTableNameMap[curr]] = [curr]
-          return acc
-        }
-
-        acc[colNamesToTableNameMap[curr]].push(curr)
-        return acc
-      }, {})
+      }, {});
 
       return respToObjects(colNames, colNamesToTableNameMap)(json)
     })
@@ -81,7 +71,7 @@ const getResults = (token, queryArray, colNames, columns) => {
 
 const respToObjects = (colNames, colNamesToTableNameMap) => resp => {
   if (resp.answer) {
-    return responseToRowObjs(colNamesToTableNameMap, resp.answer)
+    return responseToRowObjs(colNamesToTableNameMap, colNames, resp.answer)
   }
 
   return [];
@@ -230,7 +220,6 @@ class MagmaQueryContainer extends Component {
   }
 
   render() {
-    console.log(this.state.results, 'results')
     return (
       <div>
         <HeaderContainer updateModels={this.updateModels} updateApiKey={this.updateApiKey} apiKey={this.state.apiKey}/>
@@ -396,10 +385,6 @@ class Apply extends Component {
       </div>
     )
   }
-}
-
-class DownloadSelector extends Component {
-
 }
 
 const DatePicker = (onChange, value) => (
