@@ -1,21 +1,21 @@
-const magmaQuery = require('./magma_response.js')
+const magmaQuery = require('./magma_response.js');
 
 const idToValueMap = (colArray, preprendId = '') => {
   const values = colArray.reduce((idsToValue, [id, value]) => {
-    const rowId = `${preprendId}.${id}`
+    const rowId = `${preprendId}.${id}`;
     if (Array.isArray(value)) {
 
       if (value.length === 0) {
-        idsToValue[rowId] = null
+        idsToValue[rowId] = null;
         return idsToValue
       }
 
       return Object.assign(idsToValue, idToValueMap(value, rowId))
     }
 
-    idsToValue[rowId] = value
+    idsToValue[rowId] = value;
     return idsToValue
-  }, {})
+  }, {});
 
   if (Object.getPrototypeOf(values) === Object.prototype) {
     const numValues = Object.keys(values).length;
@@ -25,7 +25,7 @@ const idToValueMap = (colArray, preprendId = '') => {
   }
 
   return values;
-}
+};
 
 
 // const colToTableMap = {
@@ -39,8 +39,8 @@ const idToValueMap = (colArray, preprendId = '') => {
 
 const respAnswerByTableColumn = (colToTableMap, columns, [id, value]) => {
   return columns.reduce((tableToColumns, currCol, ind) => {
-    const table = colToTableMap[currCol]
-    const colValue = Array.isArray(value[ind]) ? idToValueMap(value[ind]) : value[ind]
+    const table = colToTableMap[currCol];
+    const colValue = Array.isArray(value[ind]) ? idToValueMap(value[ind]) : value[ind];
 
     if (tableToColumns[table]) {
       return {
@@ -66,13 +66,13 @@ const testMap = {
   "treatment_category":"treatment",
   "treatment_subtype":"treatment",
   "rna_seq_tube_name":"rna_seq"
-}
+};
 
-const testColumns = ["regimen_regimen_type","regimen_response","treatment_category","treatment_subtype","rna_seq_tube_name"]
+const testColumns = ["regimen_regimen_type","regimen_response","treatment_category","treatment_subtype","rna_seq_tube_name"];
 
-const testValue = [2951,["Neoadjuvant","Stable Disease","Drug","Immunotherapy",[["IPIMEL054.T1",[["IPIMEL054.T1.rna.myeloid","IPIMEL054.T1.rna.myeloid"],["IPIMEL054.T1.rna.tumor","IPIMEL054.T1.rna.tumor"],["IPIMEL054.T1.rna.tcell","IPIMEL054.T1.rna.tcell"],["IPIMEL054.T1.rna.stroma","IPIMEL054.T1.rna.stroma"]]]]]]
+const testValue = [2951,["Neoadjuvant","Stable Disease","Drug","Immunotherapy",[["IPIMEL054.T1",[["IPIMEL054.T1.rna.myeloid","IPIMEL054.T1.rna.myeloid"],["IPIMEL054.T1.rna.tumor","IPIMEL054.T1.rna.tumor"],["IPIMEL054.T1.rna.tcell","IPIMEL054.T1.rna.tcell"],["IPIMEL054.T1.rna.stroma","IPIMEL054.T1.rna.stroma"]]]]]];
 
-const test = respAnswerByTableColumn(testMap, testColumns, testValue)
+const test = respAnswerByTableColumn(testMap, testColumns, testValue);
 
 
 const tableRows = (rowValues) => {
@@ -82,7 +82,7 @@ const tableRows = (rowValues) => {
     }
 
     return accIds;
-  }, [])
+  }, []);
 
   const uniqueIds = Array.from(new Set(rowIds));
 
@@ -92,7 +92,7 @@ const tableRows = (rowValues) => {
       return Object.assign(row, { [colName]: value })
     }, {})
   })
-}
+};
 
 
 const rowObjs = (responseAnswer) => {
@@ -102,7 +102,7 @@ const rowObjs = (responseAnswer) => {
 
   return [responseAnswer]
 
-}
+};
 
 
 const joinRowsObjs = (rowByTable) => {
@@ -110,7 +110,7 @@ const joinRowsObjs = (rowByTable) => {
     tables[tableName] = rowObjs(value);
 
     return tables
-  }, {})
+  }, {});
 
   const joined = Object.values(rowByTableObjects).reduce((acc, curr) => {
     return acc.map(row => {
@@ -121,11 +121,11 @@ const joinRowsObjs = (rowByTable) => {
         }
       })
     }).reduce((acc, curr) => [...acc, ...curr])
-  })
+  });
 
 
   return joined;
-}
+};
 
 // const lastRow = magmaQuery.response.answer[magmaQuery.response.answer.length - 1]
 // const rowByTable = respAnswerByTableColumn(colToTableMap, magmaQuery.reqColumns, lastRow)
@@ -137,7 +137,7 @@ export const responseToRowObjs = (colToTableMap, columnNames, responseAnswer) =>
       respAnswerByTableColumn(colToTableMap, columnNames, row)
     )
   }).reduce((acc, curr) => [...acc, ...curr], [])
-}
+};
 
 //console.log(responseToRowObjs(colToTableMap, magmaQuery.response.answer))
 
@@ -151,7 +151,7 @@ const arrResp =      [ [ 'IPIGYN064.T2', [] ],
         'IPIGYN064.T1.rna.cd11bposhladrneg' ],
       [ 'IPIGYN064.T1.rna.epcam', 'IPIGYN064.T1.rna.epcam' ],
       [ 'IPIGYN064.T1.rna.myeloid', 'IPIGYN064.T1.rna.myeloid' ],
-      [ 'IPIGYN064.T1.rna.live', 'IPIGYN064.T1.rna.live' ] ] ] ]
+      [ 'IPIGYN064.T1.rna.live', 'IPIGYN064.T1.rna.live' ] ] ] ];
 
 
 
