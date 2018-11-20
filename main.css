@@ -1,0 +1,141 @@
+.table-builder-container {
+    margin: 5px 10px;
+}
+
+.table-container {
+    margin-top: 10px;
+}
+
+.table-builder-container h1 {
+    margin-left: 10px;
+    display: inline-block;
+    max-width: 180px;
+}
+
+.api-key-input {
+    display: inline-block;
+    max-width: 600px;
+    position: relative;
+    top: 5px;
+    left: 50px;
+}
+
+.api-key-input input {
+    max-width: 400px;
+}
+
+
+.filters-holder {
+    border-bottom: 1px solid #777;
+    max-height: 400px;
+    overflow: scroll;
+    padding-bottom: 70px;
+}
+
+.filters-container fieldset {
+    border-style: none;
+}
+
+.filters-container button, .filters-container input {
+    font-size: 12px;
+}
+
+.filters-container input {
+    min-width: 250px;
+}
+
+.filters-container .form-group {
+    margin-left: 12px;
+}
+
+.filters-container .input-group {
+    margin-left: 12px;
+}
+
+.table-container {
+    display: flex;
+}
+
+.apply-buttons {
+    margin: 10px 0px;
+}
+
+.apply-buttons .glyphicon {
+    margin-right: 5px;
+}
+
+.ReactTable {
+    min-width: 630px;
+    min-height: 660px;
+}
+
+.table-container .accordion{
+    width: 160px;
+    margin-right: 5px;
+}
+
+div[id^=accordion__title] {
+    padding: 10px 10px;
+}
+
+.table-container .accordion ul {
+    padding: 0px;
+}
+
+.table-container .accordion li {
+    list-style-type: none;
+    margin-top: 2px;
+}
+
+div[id^=accordion__body] > a {
+    margin-right: 10px;
+    font-size: 12px;
+}
+
+.fade-enter {
+    opacity: 0.01;
+}
+.fade-enter-active {
+    opacity: 1;
+    transition: opacity 500ms ease-in;
+}
+.fade-exit {
+    opacity: 1;
+}
+.fade-exit-active {
+    opacity: 0.01;
+    transition: opacity 600ms ease-in;
+}
+
+.slide-enter {
+    opacity: .1;
+    height: 0px;
+}
+.slide-enter-active {
+    opacity: 1;
+    height: 500px;
+    transition: all .5s;
+}
+
+.slide-enter.slide-enter-active {
+    max-height : 500px;
+}
+
+.slide-enter-done {
+    transition: all .2s;
+}
+
+.slide-exit {
+    opacity: 1;
+    height : 400px;
+}
+
+.slide-exit-active {
+    opacity: .1;
+    height : 0px;
+    transition : all .5s ease;
+}
+
+/*
+eyJhbGciOiJSUzI1NiJ9.eyJlbWFpbCI6ImRhcnJlbGwuYWJyYXVAdWNzZi5lZHUiLCJmaXJzdCI6IkRhcnJlbGwiLCJsYXN0IjoiQWJyYXUiLCJwZXJtIjoiYTpBZG1pbmlzdHJhdGlvbixCYXAsaXBpIiwiZXhwIjoxNTQyNzMwNDYzfQ.usjW0p0G1gulIGKEXpgVnjg-OtiHZDfKFP-6ExRw-Z1mICVbTHegoEzQshLB0TyZPNcRaiWDX_GGp9QOCGjm66wXi4iuuGSQgbUGRFYjF-Q9Z9s_Gm2N7CWHcSrJw5RKOLt6rGtobbZ4rIw06Ohivx_9SEVpUEctZgDfyVtJZQ1LVdcMCZFdqDGTXKFdxFx3X6K9pmk-35yCCCVO492jVHpIMVtsydgDegFegKhHh2p7B5k6B6M3cfhnyfZP_H_1XpwTl_ayJX76lovSbKUYj9HltUC1mJ3HmiEIXPofVST8Nz3h3k78rfcZfJ2irmR-Uzx0hFgfYkG97F_sCvhJvDpv9Om1NU-KH9EGwxDUro18RE1RJ52mkqmLxV6Lc-HUBZ4GDqV1-sqCCCbEUjq8CAjMGXhh4OKZ9Fz7rr8xm36FUrQewWqHA2KBK5pDd_Cu-ikLmIcvXho_BFHDmOLtBXe9DSP2OrqWk6KHLmX54OegcMDAWcXw9DiZx_MKqwn4mLLqkI0uc_y9OCoaat1XbEaT2opRhcaY4Q_7TPr59LoALRbBmxh4qn4SJugtZgjL3KYJ5U5aTf9t4x1MUKtLERfQZW6LTfAT7CTBfKb2Um9lhdp7ng_OScJCBmegsTlGi01oAUMnbp417ESoASde7kBi9Ofr0qmUi57T8dlo0sA
+*/

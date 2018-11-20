@@ -8,6 +8,7 @@ import {
   AccordionItemTitle,
   AccordionItemBody,
 } from 'react-accessible-accordion';
+import { CSSTransition, TransitionGroup } from 'react-transition-group';
 
 import { createGraph, constructDSLQuery, queryToDSL } from '../../lib/table-query-builder';
 import { downloadTSV } from '../../lib/download';
@@ -221,31 +222,35 @@ class MagmaQueryContainer extends Component {
 
   render() {
     return (
-      <div>
+      <div className='table-builder-container'>
         <HeaderContainer updateModels={this.updateModels} updateApiKey={this.updateApiKey} apiKey={this.state.apiKey}/>
-        <TableContainer columns={this.state.columns} data={this.state.results}/>
-        <Apply
-          filters={this.state.filters}
-          columns={this.state.columns}
-          models={this.state.models}
-          apiKey={this.state.apiKey}
-          updateResults={this.updateResults}
-          data={this.state.results}
-        />
-        <FiltersContainer
-          models={this.state.filterableModels}
-          addFilter={this.addFilter}
-          filters={this.state.filters}
-          removeFilter={this.removeFilter}
-          updateFilter={this.updateFilter}
-          clearFilters={this.clearFilters}
-        />
-        <ColumnPickerContainer
-          models={this.state.models}
-          selectedColumns={this.state.columns}
-          addColumn={this.addColumn}
-          removeColumn={this.removeColumn}
-        />
+        <div className='table-container'>
+          <ColumnPickerContainer
+            models={this.state.models}
+            selectedColumns={this.state.columns}
+            addColumn={this.addColumn}
+            removeColumn={this.removeColumn}
+          />
+          <div className='table-view-container'>
+            <FiltersContainer
+              models={this.state.filterableModels}
+              addFilter={this.addFilter}
+              filters={this.state.filters}
+              removeFilter={this.removeFilter}
+              updateFilter={this.updateFilter}
+              clearFilters={this.clearFilters}
+            />
+            <Apply
+              filters={this.state.filters}
+              columns={this.state.columns}
+              models={this.state.models}
+              apiKey={this.state.apiKey}
+              updateResults={this.updateResults}
+              data={this.state.results}
+            />
+            <TableContainer columns={this.state.columns} data={this.state.results}/>
+          </div>
+        </div>
       </div>
     );
   }
@@ -296,7 +301,7 @@ const Table = ({ headers, data }) => (
   <FoldableTable
     data={data}
     className='-striped -highlight'
-    defaultPageSize={10}
+    defaultPageSize={25}
     columns={headers}
   />
 );
@@ -371,7 +376,7 @@ class Apply extends Component {
 
   render() {
     return (
-      <div>
+      <div className='apply-buttons'>
         <ButtonGroup>
           <Button onClick={this.handleApply}>
             <span className='glyphicon glyphicon-th-list' aria-hidden='true' />
@@ -527,47 +532,65 @@ class FiltersContainer extends Component {
 
   renderFilters() {
     return Object.values(this.props.filters).map(({ id, column, comparator, value }) => (
-      <Filter
+      <CSSTransition
         key={id}
-        id={id}
-        removeFilter={() => this.props.removeFilter(id)}
-        updateFilter={(property, newValue) => this.props.updateFilter(id, property, newValue)}
-        columnOptions={this.state.columnOptions}
-        selectedColumn={column}
-        getComparatorOptions={this.getComparatorOptions}
-        selectedComparator={comparator}
-        getInputField={this.getInputField}
-        value={value}
-      />
+        timeout={300}
+        classNames='fade'
+      >
+        <Filter
+          key={id}
+          id={id}
+          removeFilter={() => this.props.removeFilter(id)}
+          updateFilter={(property, newValue) => this.props.updateFilter(id, property, newValue)}
+          columnOptions={this.state.columnOptions}
+          selectedColumn={column}
+          getComparatorOptions={this.getComparatorOptions}
+          selectedComparator={comparator}
+          getInputField={this.getInputField}
+          value={value}
+        />
+      </CSSTransition>
     ));
   }
 
+  renderFilterContainer() {
+    return (
+      <Form componentClass='fieldset' inline>
+        <ButtonGroup>
+          <Button onClick={this.addFilter}>
+            <span className='glyphicon glyphicon-plus' aria-hidden='true'/>
+            Add Filter
+          </Button>
+          <Button onClick={this.props.clearFilters}>
+            <span className='glyphicon glyphicon-erase' aria-hidden='true'/>
+            Clear All
+          </Button>
+        </ButtonGroup>
+        <div className='filters-holder'>
+          <TransitionGroup className="filter-list">
+            {this.renderFilters()}
+          </TransitionGroup>
+        </div>
+      </Form>
+    );
+  }
+
   render() {
-    const filters = this.renderFilters();
+    const filters = this.state.collapsed ? <div></div> : this.renderFilterContainer();
 
     return (
-      <div>
+      <div className='filters-container'>
         <Button onClick={this.toggleFilterList}>
-          <h5>
             <span className='glyphicon glyphicon-filter' aria-hidden='true' />
             Filters
-          </h5>
         </Button>
-        {this.state.collapsed ||
-          <Form componentClass='fieldset' inline>
-            <ButtonGroup>
-              <Button onClick={this.addFilter}>
-                <span className='glyphicon glyphicon-plus' aria-hidden='true' />
-                Add Filter
-              </Button>
-              <Button onClick={this.props.clearFilters}>
-                <span className='glyphicon glyphicon-erase' aria-hidden='true' />
-                Clear All
-              </Button>
-            </ButtonGroup>
+          <CSSTransition
+            in={!this.state.collapsed}
+            timeout={1000}
+            classNames='slide'
+          >
             {filters}
-          </Form>
-        }
+          </CSSTransition>
       </div>
     );
   }
@@ -680,9 +703,9 @@ class HeaderContainer extends Component {
 }
 
 const Header = ({ handleAuth, updateApiKey, apiKey }) => (
-  <div>
+  <div className='table-header-container'>
     <h1>Table Builder</h1>
-    <div className={'input-group'}>
+    <div className={'input-group api-key-input'}>
       <input type={'text'} className={'form-control'} placeholder={'API key'} onChange={updateApiKey} value={apiKey}/>
       <span className={'input-group-btn'} >
         <button className={'btn btn-default'} type={'button'} onClick={handleAuth}>Authorize</button>
@@ -754,17 +777,17 @@ const ColumnPicker = (models) => {
     return (
       <AccordionItem key={tableName}>
         <AccordionItemTitle>
-          <h4 className='u-position-relative'>
+          <h5 className='u-position-relative'>
             <span>{displayTableName}</span>
-            <a onClick={selectAllHandler}>Select All</a>
-            <a onClick={deselectHandler}>Deselect</a>
             <div
               className='accordion__arrow'
               role='presentation'
             />
-          </h4>
+          </h5>
         </AccordionItemTitle>
         <AccordionItemBody>
+          <a onClick={selectAllHandler}>Select all</a>
+          <a onClick={deselectHandler}>Deselect</a>
           <ul>
             {cols}
           </ul>
@@ -774,9 +797,11 @@ const ColumnPicker = (models) => {
   });
 
   return (
-    <Accordion accordion={false}>
-      {tables}
-    </Accordion>
+    <div className='column-selector'>
+      <Accordion accordion={false}>
+        {tables}
+      </Accordion>
+    </div>
   );
 };
 
