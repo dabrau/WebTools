@@ -22,9 +22,6 @@ const defaultFoldButtonComponent = ({ header, collapsed, icon, onClick }) => {
 
   return (
     <div>
-      <div style={style} onClick={onClick}>
-        {icon}
-      </div>
       {!collapsed && <div>{header}</div>}
     </div>
   )
