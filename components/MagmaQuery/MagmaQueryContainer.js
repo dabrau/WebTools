@@ -22,7 +22,7 @@ import FoldableTableHOC from './foldableTable'
 const FoldableTable = FoldableTableHOC(ReactTable);
 
 const getModels = (token) => {
-  return fetch('http://magma.ucsf.edu/retrieve', {
+  return fetch('https://magma.ucsf.edu/retrieve', {
     method: 'POST',
     mode: 'cors',
     headers: {
@@ -42,7 +42,7 @@ const getModels = (token) => {
 };
 
 const getResults = (token, queryArray, colNames, columns) => {
-  return fetch('http://magma.ucsf.edu/query', {
+  return fetch('https://magma.ucsf.edu/query', {
     method: 'POST',
     mode: 'cors',
     headers: {
