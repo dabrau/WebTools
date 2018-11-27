@@ -42641,7 +42641,7 @@
 	var FoldableTable = (0, _foldableTable2.default)(_reactTable2.default);
 
 	var getModels = function getModels(token) {
-	  return fetch('http://localhost:5050/retrieve', {
+	  return fetch('http://magma.ucsf.edu/retrieve', {
 	    method: 'POST',
 	    mode: 'cors',
 	    headers: {
@@ -42663,7 +42663,7 @@
 	};
 
 	var getResults = function getResults(token, queryArray, colNames, columns) {
-	  return fetch('http://localhost:5050/query', {
+	  return fetch('http://magma.ucsf.edu/query', {
 	    method: 'POST',
 	    mode: 'cors',
 	    headers: {
